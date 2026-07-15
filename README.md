@@ -3,7 +3,7 @@
 A Common Lisp library of procedural generation algorithms: seeded noise
 (Perlin, Simplex, Worley, value, white), fractal combinators (fBm,
 turbulence, ridged multifractal), cellular automata, and Poisson disc
-sampling. Starts 2D, extends to 3D, and is designed to eventually feed
+sampling. Starts 2D, extends to 3D, and feeds
 [`common-shapes`](../common-shapes) to turn generated caves and heightfields
 into meshes.
 
@@ -38,12 +38,19 @@ into meshes.
   a grid locally similar to a sample grid using the overlapping model:
   adjacency rules are learned automatically from N x N patterns cut from the
   sample (including bit grids from `cellular-automata`, `drunkards-walk`, etc.).
-- **Mesh generation** (`mesh.lisp`, system `common-generation/mesh`) —
-  `heightfield->mesh` converts a 2D single-float field (from `noise-field-2d`
-  or `diamond-square`) into a [`common-shapes`](../common-shapes) `mesh`,
-  matching `common-shapes:make-plane`'s XY-plane/CCW-winding conventions with
-  height written into Z. A separate system, since it is the only part of this
-  library that depends on `common-shapes`.
+- **Mesh generation** (`mesh.lisp`, system `common-generation/mesh`) — a
+  separate system, since it is the only part of this library that depends on
+  `common-shapes`:
+  - `heightfield->mesh` converts a 2D single-float field (from
+    `noise-field-2d` or `diamond-square`) into a
+    [`common-shapes`](../common-shapes) `mesh`, matching
+    `common-shapes:make-plane`'s XY-plane/CCW-winding conventions with
+    height written into Z.
+  - `cave-grid->walls` extrudes the solid cells of a bit grid
+    (`cellular-automata`, `drunkards-walk`, `bsp-dungeon`, `maze`) into a
+    face-culled wall mesh, with optional floor/ceiling caps.
+  - `marching-squares->mesh` extracts iso-contours from a 2D scalar field,
+    returning both an extruded wall mesh and the raw 2D contour segments.
 
 No runtime dependencies for the core `common-generation` system (only
 [`fiveam`](https://github.com/lispci/fiveam) for tests). The optional
@@ -120,33 +127,28 @@ that depends on `common-shapes`):
               field :width 10.0 :depth 10.0 :height-scale 2.0
                     :normals t :tex-coords t)))
   (common-shapes:vertex-count mesh))
+
+;; A cellular-automata cave, extruded into walls with a floor and ceiling
+(let* ((rng (make-rng :seed 9))
+       (grid (cellular-automata rng 40 40))
+       (mesh (common-generation/mesh:cave-grid->walls
+              grid :height 2.0 :ceiling t :normals t)))
+  (common-shapes:triangle-count mesh))
+
+;; Iso-contours from a heightfield via marching squares -- both the
+;; extruded wall mesh and the raw 2D outline segments
+(let* ((field (diamond-square (make-rng :seed 5) 6)))
+  (multiple-value-bind (mesh segments)
+      (common-generation/mesh:marching-squares->mesh field :iso 0.5)
+    (values (common-shapes:triangle-count mesh) (length segments))))
 ```
 
-## TODO / Future Work
+## Future Work
 
-- [x] **2D algorithms** — drunkard's-walk / random-walk caves, BSP
-      room-and-corridor dungeon generation, maze generation, diamond-square
-      heightmaps
-- [x] **Wave-function-collapse** — overlapping model implemented
-      (`wfc.lisp`); a tiled/authored-rules front-end on the same solver core
-      is a possible follow-up, see `TICKETS.md`
-- [ ] **3D algorithms** — 3D cellular automata caves, 3D fBm volumes,
-      marching-cubes-ready density fields
-- [ ] **L-systems** — turtle-graphics interpretation, parametric and
-      stochastic production rules
-- [x] **`common-shapes` integration: heightfield-to-mesh** — `mesh.lisp`
-      (system `common-generation/mesh`) converts `noise-field-2d`/
-      `diamond-square` output into a `common-shapes` mesh; see `TICKETS.md`
-      for the remaining integration work
-- [ ] **`common-shapes` integration: cave-grid-to-walls, marching
-      squares/cubes, Poisson scatter, greedy meshing** — see `TICKETS.md`
-- [ ] **Voxel ray traversal** — fast grid/voxel ray marching (Amanatides-Woo
-      3D DDA) for line-of-sight, block-picking, and lighting queries against
-      generated grids; see `TICKETS.md` for the 2D-now-vs-3D-later question
-- [ ] **Additional noise** — domain warping, flow noise, more Worley distance
-      metrics and F1/F2 combinations
-- [ ] **Optimisation pass** — type declarations and `the` on hot loops; the
-      current implementation prioritises clarity over raw throughput
+Open work items — remaining `common-shapes` integration (marching cubes,
+Poisson scatter, greedy meshing, arbitrary-polygon triangulation), 3D
+algorithms, L-systems, voxel ray traversal, additional noise, and an
+optimisation pass — are tracked in [`TICKETS.md`](TICKETS.md).
 
 ## License
 
