@@ -18,7 +18,8 @@
                (:file "walk")
                (:file "maze")
                (:file "dungeon")
-               (:file "heightmap")))
+               (:file "heightmap")
+               (:file "wfc")))
 
 (asdf:defsystem #:common-generation/test
   :description "Tests for common-generation"

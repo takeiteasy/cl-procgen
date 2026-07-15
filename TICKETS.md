@@ -15,20 +15,6 @@ here until one exists.
   revisit when a feature actually needs divergence-free flow (e.g. particle
   advection through fluid-like noise).
 
-- **#2 — Wave-function-collapse 2D generator.** Listed in the README TODO
-  alongside the algorithms implemented in `walk.lisp`, `maze.lisp`,
-  `dungeon.lisp`, and `heightmap.lisp`, but deferred: WFC is substantially
-  larger than those four and has its own unresolved design fork that needs
-  deciding before implementation starts —
-  - **Tiled model**: a fixed tile set with hand- or data-authored adjacency
-    rules; simpler, predictable output, but requires an input format for
-    tiles/rules.
-  - **Overlapping model**: adjacency rules learned automatically from a
-    sample bitmap/grid via NxN pattern extraction; more general and less
-    authoring effort, but higher implementation complexity (pattern
-    frequency tables, backtracking on contradiction) and slower.
-  Needs a design conversation (and likely its own plan) before starting.
-
 - **#3 — Voxel ray traversal.** Fast grid/voxel ray marching (Amanatides-Woo
   3D DDA) for line-of-sight, block-picking, and lighting queries against
   generated grids — useful against `cellular-automata`/`bsp-dungeon`/`maze`
@@ -37,3 +23,37 @@ here until one exists.
   generators, or hold until the 3D cellular automata TODO item lands and do
   both at once? Leaning toward 2D first since it's directly testable against
   what already exists, with a 3D generalization once 3D grids exist.
+
+- **#4 — WFC tiled/authored-rules front-end.** `wfc.lisp`'s solver core
+  (wave/entropy/observe/propagate/contradiction-restart) is model-agnostic —
+  it only needs `patterns + weights + adjacency[4]`. The overlapping model
+  (`wave-function-collapse`, closed #2) derives those from a sample grid via
+  NxN pattern extraction. A tiled model would derive the same three from a
+  fixed, hand- or data-authored tile set with explicit adjacency rules
+  instead, feeding the same core. Needs a design conversation on the
+  authoring format (data file vs. Lisp plist/struct API) before starting.
+
+- **#5 — WFC symmetry transforms.** `wave-function-collapse`'s `symmetry`
+  key currently only accepts `:none` and signals an error otherwise
+  (`wfc.lisp`). Add `:reflect`/`:rotate`/`:all`, which should extend
+  `%wfc-extract-patterns` to also insert the horizontally/vertically
+  reflected and 90-degree-rotated variants of each pattern before
+  deduplication (matching the reference implementation's flip/rotation
+  flags).
+
+- **#6 — WFC propagation is O(P^2) per cell, not O(P).** `%wfc-propagate` in
+  `wfc.lisp` rechecks pattern support with a full linear scan
+  (`%wfc-pattern-supported-p`) on every candidate removal. The reference WFC
+  implementations maintain a per-cell-per-direction support-count matrix so
+  each removal is amortized O(1). Left as-is for now since pattern counts
+  (`P`) stay small for typical sample sizes; revisit if larger samples or
+  bigger `n` make generation noticeably slow.
+
+## Closed
+
+- **#2 — Wave-function-collapse 2D generator.** Resolved: implemented the
+  overlapping model as `wave-function-collapse` in `wfc.lisp` (learns
+  adjacency from a sample grid's NxN patterns; no new authoring format
+  needed, so existing bit-grid generators can be used as samples directly).
+  The tiled/authored-rules variant is deferred as a fast-follow on the same
+  solver core — see #4.

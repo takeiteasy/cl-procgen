@@ -34,6 +34,10 @@ into meshes.
   space partitioning, carves a room per leaf, and joins them with corridors.
 - **Diamond-square heightmaps** (`heightmap.lisp`) — `diamond-square` bakes a
   fractal heightfield into a `(2^n+1)` square single-float array.
+- **Wave function collapse** (`wfc.lisp`) — `wave-function-collapse` generates
+  a grid locally similar to a sample grid using the overlapping model:
+  adjacency rules are learned automatically from N x N patterns cut from the
+  sample (including bit grids from `cellular-automata`, `drunkards-walk`, etc.).
 
 No runtime dependencies (only [`fiveam`](https://github.com/lispci/fiveam) for
 tests).
@@ -88,6 +92,12 @@ None at runtime. `fiveam` is required to run the test suite.
 
 ;; A diamond-square heightmap, 2^7+1 = 129 square
 (diamond-square (make-rng :seed 15) 7)
+
+;; Wave function collapse: grow a cellular-automata cave sample into a
+;; larger, locally-similar grid
+(let* ((sample (cellular-automata (make-rng :seed 9) 20 20))
+       (rng (make-rng :seed 16)))
+  (wave-function-collapse rng sample 60 40))
 ```
 
 ## TODO / Future Work
@@ -95,8 +105,9 @@ None at runtime. `fiveam` is required to run the test suite.
 - [x] **2D algorithms** — drunkard's-walk / random-walk caves, BSP
       room-and-corridor dungeon generation, maze generation, diamond-square
       heightmaps
-- [ ] **Wave-function-collapse** — see `TICKETS.md` for the tiled-vs-overlapping
-      design fork to resolve before starting
+- [x] **Wave-function-collapse** — overlapping model implemented
+      (`wfc.lisp`); a tiled/authored-rules front-end on the same solver core
+      is a possible follow-up, see `TICKETS.md`
 - [ ] **3D algorithms** — 3D cellular automata caves, 3D fBm volumes,
       marching-cubes-ready density fields
 - [ ] **L-systems** — turtle-graphics interpretation, parametric and

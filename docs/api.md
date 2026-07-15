@@ -92,6 +92,12 @@ Take a noise function as the first argument and combine octaves of it.
 |---|---|
 | `(diamond-square rng n &key roughness normalize)` | Returns a `(2^n+1 2^n+1)` single-float field. `roughness` scales jitter falloff per pass; `normalize` (default `t`) rescales to `[0, 1]`. |
 
+## Wave function collapse (`wfc.lisp`)
+
+| Function | Notes |
+|---|---|
+| `(wave-function-collapse rng sample out-width out-height &key n periodic-input periodic-output symmetry max-retries)` | Overlapping-model WFC: learns N x N pattern adjacency/weights from `sample` (any grid of `eql`-comparable values, e.g. a bit grid) and collapses an `(out-height out-width)` wave to match. Returns a fresh array (same element-type as `sample`), or `nil` if every retry (up to `max-retries`) hit a contradiction. `symmetry` currently only accepts `:none`. |
+
 ## Math utilities (`math.lisp`)
 
 `+pi+`, `+tau+`, `sf`, `clamp`, `lerp`, `remap`, `fast-floor`, `fade`,

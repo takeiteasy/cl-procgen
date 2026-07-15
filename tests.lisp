@@ -228,3 +228,64 @@
   (let ((f1 (diamond-square (make-rng :seed 17) 4))
         (f2 (diamond-square (make-rng :seed 17) 4)))
     (is (equalp f1 f2))))
+
+;;; wfc
+
+(defparameter *wfc-test-sample*
+  (make-array '(4 4) :element-type 'bit
+              :initial-contents '((0 0 1 1)
+                                   (0 0 1 1)
+                                   (1 1 0 0)
+                                   (1 1 0 0)))
+  "A small 2x2-block checker pattern used to exercise WAVE-FUNCTION-COLLAPSE.")
+
+(defun %wfc-window (arr y x n)
+  "Extract a fresh copy of the N x N block of ARR with top-left corner
+   (Y, X), for use as a hash-table key."
+  (let ((w (make-array (list n n) :element-type (array-element-type arr))))
+    (dotimes (dy n)
+      (dotimes (dx n)
+        (setf (aref w dy dx) (aref arr (+ y dy) (+ x dx)))))
+    w))
+
+(defun %wfc-output-matches-patterns-p (sample output n periodic-input)
+  "True if every N x N window of OUTPUT equals one of the distinct N x N
+   patterns %WFC-EXTRACT-PATTERNS learns from SAMPLE — i.e. WFC introduced
+   no window that couldn't have come from SAMPLE. This checks the actual
+   constraint WFC enforces (N x N pattern membership), unlike a same-domain
+   single-cell adjacency check, which is vacuous for small binary samples."
+  (multiple-value-bind (patterns weights)
+      (common-generation::%wfc-extract-patterns sample n periodic-input)
+    (declare (ignore weights))
+    (let ((pattern-set (make-hash-table :test 'equalp)))
+      (loop for p across patterns do (setf (gethash p pattern-set) t))
+      (destructuring-bind (oh ow) (array-dimensions output)
+        (loop for y from 0 to (- oh n)
+              always (loop for x from 0 to (- ow n)
+                           always (gethash (%wfc-window output y x n) pattern-set)))))))
+
+(test wfc-shape
+  (let* ((rng (make-rng :seed 20))
+         (out (wave-function-collapse rng *wfc-test-sample* 12 8 :n 2)))
+    (is (not (null out)))
+    (is (equal '(8 12) (array-dimensions out)))
+    (is (every (lambda (b) (or (= b 0) (= b 1)))
+               (make-array 96 :displaced-to out :element-type 'bit)))))
+
+(test wfc-determinism
+  (let ((o1 (wave-function-collapse (make-rng :seed 21) *wfc-test-sample* 10 10 :n 2))
+        (o2 (wave-function-collapse (make-rng :seed 21) *wfc-test-sample* 10 10 :n 2)))
+    (is (equalp o1 o2))))
+
+(test wfc-output-respects-sample-adjacency
+  (let* ((rng (make-rng :seed 22))
+         (out (wave-function-collapse rng *wfc-test-sample* 14 10 :n 2)))
+    (is (not (null out)))
+    (is (%wfc-output-matches-patterns-p *wfc-test-sample* out 2 t))))
+
+(test wfc-cellular-automata-sample
+  (let* ((sample (cellular-automata (make-rng :seed 23) 12 12))
+         (out (wave-function-collapse (make-rng :seed 24) sample 16 16 :n 3)))
+    (is (not (null out)))
+    (is (equal '(16 16) (array-dimensions out)))
+    (is (%wfc-output-matches-patterns-p sample out 3 t))))

@@ -79,4 +79,7 @@
    #:dungeon-room-h
 
    ;; Diamond-square heightmaps
-   #:diamond-square))
+   #:diamond-square
+
+   ;; Wave function collapse (overlapping model)
+   #:wave-function-collapse))
