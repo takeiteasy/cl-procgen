@@ -103,3 +103,14 @@ Take a noise function as the first argument and combine octaves of it.
 `+pi+`, `+tau+`, `sf`, `clamp`, `lerp`, `remap`, `fast-floor`, `fade`,
 `smoothstep`, `smootherstep`, `hash-u32`, `hash-3d`, `hash->float`,
 `normalize-array`.
+
+## Mesh generation (`mesh.lisp`)
+
+Package `#:common-generation/mesh` (nickname `#:cgen-mesh`), system
+`common-generation/mesh`. Depends on `common-generation` and
+[`common-shapes`](../../common-shapes) — the only part of this library with
+a runtime dependency. Not part of the core `#:common-generation` system.
+
+| Function | Notes |
+|---|---|
+| `(heightfield->mesh field &key width depth height-scale base-height normals tex-coords)` | Converts a `(height width)` single-float `field` (`noise-field-2d`, `diamond-square`) into a `common-shapes:mesh`. Vertex grid on the XY plane centered at the origin, height written into Z (`base-height + height-scale * field-value`); CCW winding matching `common-shapes:make-plane` (an all-zero field produces an identical mesh to `make-plane`). `field` must be at least 2x2. |

@@ -5,6 +5,38 @@ here until one exists.
 
 ## Open
 
+- **#7 — Cave-grid/dungeon/maze walls to mesh.** `mesh.lisp` currently only
+  converts heightfields (`heightfield->mesh`). Extrude the
+  solid cells of the `(height width)` bit grids from `cellular-automata`,
+  `drunkards-walk`, `bsp-dungeon`, and `maze` into wall meshes (boxes/quads
+  per solid cell, or run-merged spans) for `common-generation/mesh`.
+
+- **#8 — Marching squares/cubes.** Contour/iso-surface extraction: marching
+  squares on 2D scalar fields (`noise-field-2d`, `diamond-square`) for
+  cave/region outlines, and marching cubes on the 3D density fields from
+  `noise-field-3d` for volumetric surfaces, added to
+  `common-generation/mesh`.
+
+- **#9 — Poisson points to scatter/instancing.** A `common-generation/mesh`
+  helper that turns `poisson-disc-sample` output into placement data
+  (position + optional per-point orientation/scale) suitable for instancing
+  props/vegetation onto a generated mesh (e.g. a `heightfield->mesh` terrain).
+
+- **#10 — Greedy meshing.** Merge coplanar adjacent quads on grid-derived
+  meshes (cave/dungeon/maze walls from #7, heightfields) before handing them
+  to `common-shapes`, to cut vertex/triangle counts on large flat regions.
+
+- **#11 — Arbitrary-polygon triangulation (GPL boundary).** Room-floor
+  polygons with holes, and Delaunay terrain from scattered Poisson points,
+  need real triangulation (`cl-earcut` for polygons-with-holes,
+  `cl-constrained-delaunay` for CDT) rather than the structured-grid meshing
+  #7-#10 use. Both libraries are GPLv3; per user decision, when this lands
+  the `common-generation/mesh` system's license changes from MIT to GPLv3
+  (core `common-generation` is unaffected — it has no dependency on
+  `common-generation/mesh`). Isolate the new triangulation entry points in
+  their own file(s) within the system rather than mixing them into
+  `mesh.lisp`, so the GPL-triggering code is easy to find.
+
 - **#1 — `curl-noise` is not a true curl.** `fractal.lisp`'s `curl-noise`
   treats a single noise function's gradient as a stand-in vector potential
   and combines finite differences of it; the curl of a true gradient field

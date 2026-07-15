@@ -38,9 +38,16 @@ into meshes.
   a grid locally similar to a sample grid using the overlapping model:
   adjacency rules are learned automatically from N x N patterns cut from the
   sample (including bit grids from `cellular-automata`, `drunkards-walk`, etc.).
+- **Mesh generation** (`mesh.lisp`, system `common-generation/mesh`) —
+  `heightfield->mesh` converts a 2D single-float field (from `noise-field-2d`
+  or `diamond-square`) into a [`common-shapes`](../common-shapes) `mesh`,
+  matching `common-shapes:make-plane`'s XY-plane/CCW-winding conventions with
+  height written into Z. A separate system, since it is the only part of this
+  library that depends on `common-shapes`.
 
-No runtime dependencies (only [`fiveam`](https://github.com/lispci/fiveam) for
-tests).
+No runtime dependencies for the core `common-generation` system (only
+[`fiveam`](https://github.com/lispci/fiveam) for tests). The optional
+`common-generation/mesh` system depends on `common-shapes`.
 
 ## Dependencies
 
@@ -100,6 +107,21 @@ None at runtime. `fiveam` is required to run the test suite.
   (wave-function-collapse rng sample 60 40))
 ```
 
+Mesh generation is a separate system (it is the only part of this library
+that depends on `common-shapes`):
+
+```lisp
+(ql:quickload :common-generation/mesh)
+
+;; A noise-driven terrain mesh, ready for common-shapes
+(let* ((noise (make-perlin-noise :seed 3))
+       (field (noise-field-2d noise 65 65 :scale 32.0 :octaves 5))
+       (mesh (common-generation/mesh:heightfield->mesh
+              field :width 10.0 :depth 10.0 :height-scale 2.0
+                    :normals t :tex-coords t)))
+  (common-shapes:vertex-count mesh))
+```
+
 ## TODO / Future Work
 
 - [x] **2D algorithms** — drunkard's-walk / random-walk caves, BSP
@@ -112,10 +134,12 @@ None at runtime. `fiveam` is required to run the test suite.
       marching-cubes-ready density fields
 - [ ] **L-systems** — turtle-graphics interpretation, parametric and
       stochastic production rules
-- [ ] **`common-shapes` integration** — heightfield-to-mesh, cave-grid-to-walls,
-      marching squares/cubes, Poisson points to scatter/instancing, greedy
-      meshing to merge coplanar quads on grid-derived meshes (cave/dungeon/
-      maze walls, heightfields) before handing them to `common-shapes`
+- [x] **`common-shapes` integration: heightfield-to-mesh** — `mesh.lisp`
+      (system `common-generation/mesh`) converts `noise-field-2d`/
+      `diamond-square` output into a `common-shapes` mesh; see `TICKETS.md`
+      for the remaining integration work
+- [ ] **`common-shapes` integration: cave-grid-to-walls, marching
+      squares/cubes, Poisson scatter, greedy meshing** — see `TICKETS.md`
 - [ ] **Voxel ray traversal** — fast grid/voxel ray marching (Amanatides-Woo
       3D DDA) for line-of-sight, block-picking, and lighting queries against
       generated grids; see `TICKETS.md` for the 2D-now-vs-3D-later question
