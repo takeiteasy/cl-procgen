@@ -154,3 +154,77 @@
          (pts (poisson-disc-sample 40.0 40.0 4.0 :rng rng
                                     :predicate (lambda (x y) (declare (ignore y)) (< x 20.0)))))
     (is (every (lambda (p) (< (aref p 0) 20.0)) pts))))
+
+;;; walk
+
+(test drunkards-walk-shape
+  (let* ((rng (make-rng :seed 10))
+         (grid (drunkards-walk rng 30 20)))
+    (is (equal '(20 30) (array-dimensions grid)))
+    (is (every (lambda (b) (or (= b 0) (= b 1)))
+               (make-array 600 :displaced-to grid :element-type 'bit)))
+    (is (some #'zerop (make-array 600 :displaced-to grid :element-type 'bit)))))
+
+(test drunkards-walk-determinism
+  (let ((g1 (drunkards-walk (make-rng :seed 11) 20 20))
+        (g2 (drunkards-walk (make-rng :seed 11) 20 20)))
+    (is (equalp g1 g2))))
+
+;;; maze
+
+(test maze-flags-shape
+  (let* ((rng (make-rng :seed 12))
+         (flags (maze rng 6 6 :format :flags)))
+    (is (equal '(6 6) (array-dimensions flags)))))
+
+(test maze-walls-shape-and-connectivity
+  (let* ((rng (make-rng :seed 12))
+         (grid (maze rng 6 6 :format :walls)))
+    (is (equal '(13 13) (array-dimensions grid)))
+    (dotimes (cy 6)
+      (dotimes (cx 6)
+        (is (= 0 (aref grid (1+ (* 2 cy)) (1+ (* 2 cx)))))))))
+
+(test maze-determinism
+  (let ((m1 (maze (make-rng :seed 13) 8 8))
+        (m2 (maze (make-rng :seed 13) 8 8)))
+    (is (equalp m1 m2))))
+
+;;; dungeon
+
+(test bsp-dungeon-shape-and-rooms
+  (let* ((rng (make-rng :seed 14)))
+    (multiple-value-bind (grid rooms) (bsp-dungeon rng 50 40)
+      (is (equal '(40 50) (array-dimensions grid)))
+      (is (every (lambda (b) (or (= b 0) (= b 1)))
+                 (make-array 2000 :displaced-to grid :element-type 'bit)))
+      (is (> (length rooms) 0))
+      (is (every (lambda (r)
+                   (loop for y from (dungeon-room-y r) below (+ (dungeon-room-y r) (dungeon-room-h r))
+                         always (loop for x from (dungeon-room-x r) below (+ (dungeon-room-x r) (dungeon-room-w r))
+                                      always (= 0 (aref grid y x)))))
+                 rooms)))))
+
+(test bsp-dungeon-determinism
+  (multiple-value-bind (g1 r1) (bsp-dungeon (make-rng :seed 15) 50 40)
+    (multiple-value-bind (g2 r2) (bsp-dungeon (make-rng :seed 15) 50 40)
+      (is (equalp g1 g2))
+      (is (= (length r1) (length r2))))))
+
+;;; heightmap
+
+(test diamond-square-shape
+  (let ((field (diamond-square (make-rng :seed 16) 5)))
+    (is (equal '(33 33) (array-dimensions field)))
+    (is (every (lambda (v) (<= 0.0 v 1.0))
+               (make-array 1089 :displaced-to field :element-type 'single-float)))))
+
+(test diamond-square-unnormalized-finite
+  (let ((field (diamond-square (make-rng :seed 16) 5 :normalize nil)))
+    (is (every (lambda (v) (not (or (sb-ext:float-nan-p v) (sb-ext:float-infinity-p v))))
+               (make-array 1089 :displaced-to field :element-type 'single-float)))))
+
+(test diamond-square-determinism
+  (let ((f1 (diamond-square (make-rng :seed 17) 4))
+        (f2 (diamond-square (make-rng :seed 17) 4)))
+    (is (equalp f1 f2))))

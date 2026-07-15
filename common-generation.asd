@@ -14,7 +14,11 @@
                (:file "fractal")
                (:file "field")
                (:file "cellular")
-               (:file "sampling")))
+               (:file "sampling")
+               (:file "walk")
+               (:file "maze")
+               (:file "dungeon")
+               (:file "heightmap")))
 
 (asdf:defsystem #:common-generation/test
   :description "Tests for common-generation"

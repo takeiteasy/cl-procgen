@@ -25,6 +25,15 @@ into meshes.
   cave-like bit grids via randomized fill + smoothing iterations.
 - **Poisson disc sampling** (`sampling.lisp`) — `poisson-disc-sample` and
   `map-poisson-disc` (Bridson's algorithm) for evenly-spaced random points.
+- **Drunkard's-walk caves** (`walk.lisp`) — `drunkards-walk` carves open space
+  into a solid grid via one or more random walkers.
+- **Maze generation** (`maze.lisp`) — `maze` builds a perfect maze via a
+  randomized recursive backtracker, returned as either a wall bit-grid or raw
+  per-cell wall flags.
+- **BSP dungeons** (`dungeon.lisp`) — `bsp-dungeon` splits an area with binary
+  space partitioning, carves a room per leaf, and joins them with corridors.
+- **Diamond-square heightmaps** (`heightmap.lisp`) — `diamond-square` bakes a
+  fractal heightfield into a `(2^n+1)` square single-float array.
 
 No runtime dependencies (only [`fiveam`](https://github.com/lispci/fiveam) for
 tests).
@@ -64,19 +73,41 @@ None at runtime. `fiveam` is required to run the test suite.
 
 ;; Evenly-spaced random points
 (poisson-disc-sample 100.0 100.0 5.0 :rng (make-rng :seed 11))
+
+;; A drunkard's-walk cave
+(let ((rng (make-rng :seed 12)))
+  (drunkards-walk rng 80 40 :walkers 4 :fill-target 0.4))
+
+;; A perfect maze, as a wall bit-grid ready to mesh
+(let ((rng (make-rng :seed 13)))
+  (maze rng 20 10))
+
+;; A BSP room-and-corridor dungeon, with room metadata for entity placement
+(multiple-value-bind (grid rooms) (bsp-dungeon (make-rng :seed 14) 80 50)
+  (values (array-dimensions grid) (length rooms)))
+
+;; A diamond-square heightmap, 2^7+1 = 129 square
+(diamond-square (make-rng :seed 15) 7)
 ```
 
 ## TODO / Future Work
 
-- [ ] **2D algorithms** — drunkard's-walk / random-walk caves, BSP or
+- [x] **2D algorithms** — drunkard's-walk / random-walk caves, BSP
       room-and-corridor dungeon generation, maze generation, diamond-square
-      heightmaps, wave-function-collapse
+      heightmaps
+- [ ] **Wave-function-collapse** — see `TICKETS.md` for the tiled-vs-overlapping
+      design fork to resolve before starting
 - [ ] **3D algorithms** — 3D cellular automata caves, 3D fBm volumes,
       marching-cubes-ready density fields
 - [ ] **L-systems** — turtle-graphics interpretation, parametric and
       stochastic production rules
 - [ ] **`common-shapes` integration** — heightfield-to-mesh, cave-grid-to-walls,
-      marching squares/cubes, Poisson points to scatter/instancing
+      marching squares/cubes, Poisson points to scatter/instancing, greedy
+      meshing to merge coplanar quads on grid-derived meshes (cave/dungeon/
+      maze walls, heightfields) before handing them to `common-shapes`
+- [ ] **Voxel ray traversal** — fast grid/voxel ray marching (Amanatides-Woo
+      3D DDA) for line-of-sight, block-picking, and lighting queries against
+      generated grids; see `TICKETS.md` for the 2D-now-vs-3D-later question
 - [ ] **Additional noise** — domain warping, flow noise, more Worley distance
       metrics and F1/F2 combinations
 - [ ] **Optimisation pass** — type declarations and `the` on hot loops; the

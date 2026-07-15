@@ -60,4 +60,23 @@
 
    ;; Poisson disc sampling
    #:poisson-disc-sample
-   #:map-poisson-disc))
+   #:map-poisson-disc
+
+   ;; Drunkard's-walk caves
+   #:drunkards-walk
+
+   ;; Maze generation
+   #:maze
+   #:maze-flags->grid
+
+   ;; BSP room-and-corridor dungeons
+   #:bsp-dungeon
+   #:dungeon-room
+   #:dungeon-room-p
+   #:dungeon-room-x
+   #:dungeon-room-y
+   #:dungeon-room-w
+   #:dungeon-room-h
+
+   ;; Diamond-square heightmaps
+   #:diamond-square))

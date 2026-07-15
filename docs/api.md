@@ -66,6 +66,32 @@ Take a noise function as the first argument and combine octaves of it.
 | `(poisson-disc-sample width height min-dist &key rng max-attempts predicate)` | Returns a simple-vector of `#(x y)` points. |
 | `(map-poisson-disc fn width height min-dist &key rng max-attempts predicate)` | Callback form, no result vector allocated. |
 
+## Drunkard's-walk caves (`walk.lisp`)
+
+| Function | Notes |
+|---|---|
+| `(drunkards-walk rng width height &key steps walkers fill-target start)` | Returns a `(height width)` bit array (1 = solid, 0 = carved). Grid starts solid; walkers carve as they step. `start` is `:center` or `:random`. |
+
+## Maze generation (`maze.lisp`)
+
+| Function | Notes |
+|---|---|
+| `(maze rng width height &key format)` | Recursive-backtracker perfect maze. `format` `:walls` (default) returns a `(2h+1 2w+1)` bit grid (1 = wall); `:flags` returns the raw `(h w)` per-cell N/E/S/W wall-bitflag array. |
+| `(maze-flags->grid flags)` | Converts a `:flags` array into the `:walls` bit-grid representation. |
+
+## BSP dungeons (`dungeon.lisp`)
+
+| Function | Notes |
+|---|---|
+| `(bsp-dungeon rng width height &key min-leaf max-leaf min-room room-margin max-depth)` | Returns two values: a `(height width)` bit array (1 = wall, 0 = floor) and a `simple-vector` of `dungeon-room` structs. Rooms are connected by L-shaped corridors. |
+| `dungeon-room`, `dungeon-room-x/y/w/h` | Room accessors (top-left corner + size, in grid cells). |
+
+## Diamond-square heightmaps (`heightmap.lisp`)
+
+| Function | Notes |
+|---|---|
+| `(diamond-square rng n &key roughness normalize)` | Returns a `(2^n+1 2^n+1)` single-float field. `roughness` scales jitter falloff per pass; `normalize` (default `t`) rescales to `[0, 1]`. |
+
 ## Math utilities (`math.lisp`)
 
 `+pi+`, `+tau+`, `sf`, `clamp`, `lerp`, `remap`, `fast-floor`, `fade`,
