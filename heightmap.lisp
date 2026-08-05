@@ -1,7 +1,7 @@
 ;;;; heightmap.lisp
 ;;;; Diamond-square heightmap generation
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 (defun %ds-average (field size &rest coords)
   "Average the values of FIELD at the given (Y X) COORD pairs that fall

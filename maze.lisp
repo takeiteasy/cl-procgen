@@ -1,7 +1,7 @@
 ;;;; maze.lisp
 ;;;; Maze generation via randomized depth-first-search (recursive backtracker)
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 (defconstant +maze-north+ 1)
 (defconstant +maze-east+  2)

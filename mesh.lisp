@@ -1,14 +1,14 @@
 ;;;; mesh.lisp
-;;;; Convert common-generation grid data into common-shapes meshes
+;;;; Convert cl-procgen grid data into common-shapes meshes
 
-(defpackage #:common-generation/mesh
+(defpackage #:cl-procgen/mesh
   (:nicknames #:cgen-mesh)
   (:use #:cl)
   (:export
    #:heightfield->mesh
    #:cave-grid->walls
    #:marching-squares->mesh))
-(in-package #:common-generation/mesh)
+(in-package #:cl-procgen/mesh)
 
 (defun heightfield->mesh (field &key (width 1.0) (depth 1.0) (height-scale 1.0)
                                      (base-height 0.0) normals tex-coords)
@@ -41,18 +41,18 @@
            (uvs (when tex-coords
                   (make-array (* vertex-count 2) :element-type 'single-float
                               :initial-element 0.0)))
-           (hw (/ (common-generation:sf width) 2.0))
-           (hd (/ (common-generation:sf depth) 2.0))
-           (height-scale (common-generation:sf height-scale))
-           (base-height (common-generation:sf base-height)))
+           (hw (/ (cl-procgen:sf width) 2.0))
+           (hd (/ (cl-procgen:sf depth) 2.0))
+           (height-scale (cl-procgen:sf height-scale))
+           (base-height (cl-procgen:sf base-height)))
       ;; Generate vertices
       (dotimes (row rows)
         (dotimes (col cols)
           (let* ((idx (+ col (* row cols)))
-                 (u (/ (common-generation:sf col) (common-generation:sf slices)))
-                 (v (/ (common-generation:sf row) (common-generation:sf stacks)))
-                 (x (- (* u (common-generation:sf width)) hw))
-                 (y (- (* v (common-generation:sf depth)) hd))
+                 (u (/ (cl-procgen:sf col) (cl-procgen:sf slices)))
+                 (v (/ (cl-procgen:sf row) (cl-procgen:sf stacks)))
+                 (x (- (* u (cl-procgen:sf width)) hw))
+                 (y (- (* v (cl-procgen:sf depth)) hd))
                  (z (+ base-height (* height-scale (aref field row col))))
                  (base (* idx 3)))
             (setf (aref vertices base) x
@@ -148,8 +148,8 @@
    produce hard-edged per-face results. A GRID with no exposed faces (e.g.
    all-open with FLOOR and CEILING both NIL) produces a valid empty mesh."
   (destructuring-bind (rows cols) (array-dimensions grid)
-    (let ((cs (common-generation:sf cell-size))
-          (h (common-generation:sf height))
+    (let ((cs (cl-procgen:sf cell-size))
+          (h (cl-procgen:sf height))
           (side-faces 0)
           (open-cells 0))
       (dotimes (row rows)
@@ -228,8 +228,8 @@
   "Interpolate the point along the edge P0->P1 (each a (X Y) list) where the
    scalar field crosses ISO, given the field values V0/V1 at the endpoints."
   (let ((tt (if (= v0 v1) 0.5 (/ (- iso v0) (- v1 v0)))))
-    (list (common-generation:lerp (first p0) (first p1) tt)
-          (common-generation:lerp (second p0) (second p1) tt))))
+    (list (cl-procgen:lerp (first p0) (first p1) tt)
+          (cl-procgen:lerp (second p0) (second p1) tt))))
 
 (defun marching-squares->mesh (field &key (iso 0.5) (cell-size 1.0)
                                           (height 1.0) normals)
@@ -251,9 +251,9 @@
    Edge crossings are linearly interpolated between corner values. NORMALS,
    if true, computes per-vertex normals via COMMON-SHAPES:COMPUTE-NORMALS."
   (destructuring-bind (rows cols) (array-dimensions field)
-    (let* ((cs (common-generation:sf cell-size))
-           (h (common-generation:sf height))
-           (iso (common-generation:sf iso))
+    (let* ((cs (cl-procgen:sf cell-size))
+           (h (cl-procgen:sf height))
+           (iso (cl-procgen:sf iso))
            (hw (/ (* (1- cols) cs) 2.0))
            (hd (/ (* (1- rows) cs) 2.0))
            (segments '()))
@@ -293,10 +293,10 @@
                                               :dimensions 3))
               (out-segments (mapcar (lambda (seg)
                                        (destructuring-bind ((x0 y0) (x1 y1)) seg
-                                         (vector (vector (common-generation:sf x0)
-                                                          (common-generation:sf y0))
-                                                 (vector (common-generation:sf x1)
-                                                          (common-generation:sf y1)))))
+                                         (vector (vector (cl-procgen:sf x0)
+                                                          (cl-procgen:sf y0))
+                                                 (vector (cl-procgen:sf x1)
+                                                          (cl-procgen:sf y1)))))
                                      segments)))
           (values (if normals (common-shapes:compute-normals mesh) mesh)
                   out-segments))))))

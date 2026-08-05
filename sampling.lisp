@@ -1,7 +1,7 @@
 ;;;; sampling.lisp
 ;;;; Poisson disc sampling (Bridson's algorithm), ported to use our seeded RNG
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 (defstruct (%poisson-grid (:constructor %make-poisson-grid))
   (cells (make-array 0) :type simple-vector)

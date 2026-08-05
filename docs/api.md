@@ -1,6 +1,6 @@
 # API Reference
 
-Package `#:common-generation` (nickname `#:cgen`). All values are
+Package `#:cl-procgen` (nickname `#:cgen`). All values are
 `single-float` unless noted.
 
 ## RNG (`rng.lisp`)
@@ -106,10 +106,10 @@ Take a noise function as the first argument and combine octaves of it.
 
 ## Mesh generation (`mesh.lisp`)
 
-Package `#:common-generation/mesh` (nickname `#:cgen-mesh`), system
-`common-generation/mesh`. Depends on `common-generation` and
+Package `#:cl-procgen/mesh` (nickname `#:cgen-mesh`), system
+`cl-procgen/mesh`. Depends on `cl-procgen` and
 [`common-shapes`](../../common-shapes) — the only part of this library with
-a runtime dependency. Not part of the core `#:common-generation` system.
+a runtime dependency. Not part of the core `#:cl-procgen` system.
 
 | Function | Notes |
 |---|---|

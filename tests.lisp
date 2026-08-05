@@ -1,15 +1,15 @@
 ;;;; tests.lisp
-;;;; Test suite for common-generation
+;;;; Test suite for cl-procgen
 
-(defpackage #:common-generation/test
-  (:use #:cl #:fiveam #:common-generation))
-(in-package #:common-generation/test)
+(defpackage #:cl-procgen/test
+  (:use #:cl #:fiveam #:cl-procgen))
+(in-package #:cl-procgen/test)
 
-(def-suite common-generation-suite :description "common-generation test suite")
-(in-suite common-generation-suite)
+(def-suite cl-procgen-suite :description "cl-procgen test suite")
+(in-suite cl-procgen-suite)
 
 (defun run-generation-tests ()
-  (run! 'common-generation-suite))
+  (run! 'cl-procgen-suite))
 
 ;;; math
 
@@ -255,7 +255,7 @@
    constraint WFC enforces (N x N pattern membership), unlike a same-domain
    single-cell adjacency check, which is vacuous for small binary samples."
   (multiple-value-bind (patterns weights)
-      (common-generation::%wfc-extract-patterns sample n periodic-input)
+      (cl-procgen::%wfc-extract-patterns sample n periodic-input)
     (declare (ignore weights))
     (let ((pattern-set (make-hash-table :test 'equalp)))
       (loop for p across patterns do (setf (gethash p pattern-set) t))

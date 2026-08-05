@@ -1,15 +1,15 @@
 ;;;; mesh-tests.lisp
-;;;; Test suite for common-generation/mesh
+;;;; Test suite for cl-procgen/mesh
 
-(defpackage #:common-generation/mesh/test
-  (:use #:cl #:fiveam #:common-generation/mesh))
-(in-package #:common-generation/mesh/test)
+(defpackage #:cl-procgen/mesh/test
+  (:use #:cl #:fiveam #:cl-procgen/mesh))
+(in-package #:cl-procgen/mesh/test)
 
-(def-suite common-generation-mesh-suite :description "common-generation/mesh test suite")
-(in-suite common-generation-mesh-suite)
+(def-suite cl-procgen-mesh-suite :description "cl-procgen/mesh test suite")
+(in-suite cl-procgen-mesh-suite)
 
 (defun run-mesh-tests ()
-  (run! 'common-generation-mesh-suite))
+  (run! 'cl-procgen-mesh-suite))
 
 (defun %zero-field (rows cols)
   (make-array (list rows cols) :element-type 'single-float :initial-element 0.0))
@@ -57,8 +57,8 @@
   (signals error (heightfield->mesh (%zero-field 5 1))))
 
 (test heightfield->mesh-from-diamond-square
-  (let* ((rng (common-generation:make-rng :seed 42))
-         (field (common-generation:diamond-square rng 4))
+  (let* ((rng (cl-procgen:make-rng :seed 42))
+         (field (cl-procgen:diamond-square rng 4))
          (mesh (heightfield->mesh field :normals t)))
     (is (> (common-shapes:vertex-count mesh) 0))
     (is (> (common-shapes:triangle-count mesh) 0))
@@ -118,8 +118,8 @@
       (is (= (* 2 (common-shapes:vertex-count mesh)) (length (common-shapes:mesh-tex-coords mesh)))))))
 
 (test cave-grid->walls-from-cellular-automata
-  (let* ((rng (common-generation:make-rng :seed 9))
-         (grid (common-generation:cellular-automata rng 40 40))
+  (let* ((rng (cl-procgen:make-rng :seed 9))
+         (grid (cl-procgen:cellular-automata rng 40 40))
          (mesh (cave-grid->walls grid :ceiling t :normals t)))
     (is (> (common-shapes:vertex-count mesh) 0))
     (is (> (common-shapes:triangle-count mesh) 0))
@@ -134,7 +134,7 @@
   (let ((field (make-array (list rows cols) :element-type 'single-float)))
     (dotimes (row rows)
       (dotimes (col cols)
-        (setf (aref field row col) (/ (common-generation:sf row) (common-generation:sf (1- rows))))))
+        (setf (aref field row col) (/ (cl-procgen:sf row) (cl-procgen:sf (1- rows))))))
     field))
 
 (test marching-squares->mesh-all-below-iso-is-empty
@@ -160,7 +160,7 @@
          (hd (/ (* 4.0 1.0) 2.0))
          (y2 (- (* 2.0 1.0) hd))
          (y3 (- (* 3.0 1.0) hd))
-         (expected-y (common-generation:lerp y2 y3 0.4)))
+         (expected-y (cl-procgen:lerp y2 y3 0.4)))
     (multiple-value-bind (mesh segments) (marching-squares->mesh field :iso 0.6 :cell-size 1.0)
       (declare (ignore mesh))
       (is (> (length segments) 0))
@@ -180,8 +180,8 @@
                  (common-shapes:mesh-vertices mesh))))))
 
 (test marching-squares->mesh-from-diamond-square
-  (let* ((rng (common-generation:make-rng :seed 5))
-         (field (common-generation:diamond-square rng 6))
+  (let* ((rng (cl-procgen:make-rng :seed 5))
+         (field (cl-procgen:diamond-square rng 6))
          (mesh (marching-squares->mesh field :iso 0.5 :normals t)))
     (is (every (lambda (v) (and (typep v 'single-float) (not (float-nan-p v))))
                (common-shapes:mesh-vertices mesh)))))

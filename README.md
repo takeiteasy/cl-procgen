@@ -1,4 +1,4 @@
-# common-generation
+# cl-procgen
 
 A Common Lisp library of procedural generation algorithms: seeded noise
 (Perlin, Simplex, Worley, value, white), fractal combinators (fBm,
@@ -38,7 +38,7 @@ into meshes.
   a grid locally similar to a sample grid using the overlapping model:
   adjacency rules are learned automatically from N x N patterns cut from the
   sample (including bit grids from `cellular-automata`, `drunkards-walk`, etc.).
-- **Mesh generation** (`mesh.lisp`, system `common-generation/mesh`) — a
+- **Mesh generation** (`mesh.lisp`, system `cl-procgen/mesh`) — a
   separate system, since it is the only part of this library that depends on
   `common-shapes`:
   - `heightfield->mesh` converts a 2D single-float field (from
@@ -52,9 +52,9 @@ into meshes.
   - `marching-squares->mesh` extracts iso-contours from a 2D scalar field,
     returning both an extruded wall mesh and the raw 2D contour segments.
 
-No runtime dependencies for the core `common-generation` system (only
+No runtime dependencies for the core `cl-procgen` system (only
 [`fiveam`](https://github.com/lispci/fiveam) for tests). The optional
-`common-generation/mesh` system depends on `common-shapes`.
+`cl-procgen/mesh` system depends on `common-shapes`.
 
 ## Dependencies
 
@@ -63,8 +63,8 @@ None at runtime. `fiveam` is required to run the test suite.
 ## Examples
 
 ```lisp
-(ql:quickload :common-generation)
-(use-package :common-generation)
+(ql:quickload :cl-procgen)
+(use-package :cl-procgen)
 
 ;; Deterministic RNG
 (let ((rng (make-rng :seed 42)))
@@ -118,12 +118,12 @@ Mesh generation is a separate system (it is the only part of this library
 that depends on `common-shapes`):
 
 ```lisp
-(ql:quickload :common-generation/mesh)
+(ql:quickload :cl-procgen/mesh)
 
 ;; A noise-driven terrain mesh, ready for common-shapes
 (let* ((noise (make-perlin-noise :seed 3))
        (field (noise-field-2d noise 65 65 :scale 32.0 :octaves 5))
-       (mesh (common-generation/mesh:heightfield->mesh
+       (mesh (cl-procgen/mesh:heightfield->mesh
               field :width 10.0 :depth 10.0 :height-scale 2.0
                     :normals t :tex-coords t)))
   (common-shapes:vertex-count mesh))
@@ -131,7 +131,7 @@ that depends on `common-shapes`):
 ;; A cellular-automata cave, extruded into walls with a floor and ceiling
 (let* ((rng (make-rng :seed 9))
        (grid (cellular-automata rng 40 40))
-       (mesh (common-generation/mesh:cave-grid->walls
+       (mesh (cl-procgen/mesh:cave-grid->walls
               grid :height 2.0 :ceiling t :normals t)))
   (common-shapes:triangle-count mesh))
 
@@ -139,7 +139,7 @@ that depends on `common-shapes`):
 ;; extruded wall mesh and the raw 2D outline segments
 (let* ((field (diamond-square (make-rng :seed 5) 6)))
   (multiple-value-bind (mesh segments)
-      (common-generation/mesh:marching-squares->mesh field :iso 0.5)
+      (cl-procgen/mesh:marching-squares->mesh field :iso 0.5)
     (values (common-shapes:triangle-count mesh) (length segments))))
 ```
 

@@ -1,7 +1,7 @@
 ;;;; cellular.lisp
 ;;;; Cellular automata grid generation (e.g. cave-like shapes)
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 (defun cellular-automata (rng width height
                            &key (fill-chance 45) (iterations 5) (survive 4) (starve 3))

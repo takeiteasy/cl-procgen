@@ -1,7 +1,7 @@
 ;;;; fractal.lisp
 ;;;; Higher-order noise combinators (fBm and friends) built from any noise function
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 (defun fbm (noise-fn x y z &key (octaves 4) (lacunarity 2.0) (gain 0.5))
   "Fractal Brownian motion: a weighted sum of NOISE-FN sampled at increasing

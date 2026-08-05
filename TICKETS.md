@@ -7,12 +7,12 @@ here until one exists.
 
 - **#8 — Marching cubes.** Iso-surface extraction on the 3D density fields
   from `noise-field-3d` for volumetric surfaces, added to
-  `common-generation/mesh`. Originally bundled with marching squares; the 2D
+  `cl-procgen/mesh`. Originally bundled with marching squares; the 2D
   half shipped as `marching-squares->mesh` (`mesh.lisp`), so this ticket is
   re-scoped to track only the 3D marching-cubes half, which depends on 3D
   density fields existing — see #12.
 
-- **#9 — Poisson points to scatter/instancing.** A `common-generation/mesh`
+- **#9 — Poisson points to scatter/instancing.** A `cl-procgen/mesh`
   helper that turns `poisson-disc-sample` output into placement data
   (position + optional per-point orientation/scale) suitable for instancing
   props/vegetation onto a generated mesh (e.g. a `heightfield->mesh` terrain).
@@ -27,9 +27,9 @@ here until one exists.
   need real triangulation (`cl-earcut` for polygons-with-holes,
   `cl-constrained-delaunay` for CDT) rather than the structured-grid meshing
   `cave-grid->walls`/`marching-squares->mesh`/#9/#10 use. Both libraries are
-  GPLv3; per user decision, when this lands the `common-generation/mesh`
-  system's license changes from MIT to GPLv3 (core `common-generation` is
-  unaffected — it has no dependency on `common-generation/mesh`). Isolate
+  GPLv3; per user decision, when this lands the `cl-procgen/mesh`
+  system's license changes from MIT to GPLv3 (core `cl-procgen` is
+  unaffected — it has no dependency on `cl-procgen/mesh`). Isolate
   the new triangulation entry points in their own file(s) within the system
   rather than mixing them into `mesh.lisp`, so the GPL-triggering code is
   easy to find.

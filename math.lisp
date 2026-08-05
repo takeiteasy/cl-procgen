@@ -1,7 +1,7 @@
 ;;;; math.lisp
-;;;; Shared numeric utilities for common-generation
+;;;; Shared numeric utilities for cl-procgen
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 ;;; Constants
 

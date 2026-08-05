@@ -1,7 +1,7 @@
 ;;;; field.lisp
 ;;;; Sampled 2D/3D noise fields (idiomatic replacements for paul's fbm2D/fbm3D)
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 (defun noise-field-2d (noise-fn width height
                         &key (z 0.0) (offset-x 0.0) (offset-y 0.0) (scale 1.0)

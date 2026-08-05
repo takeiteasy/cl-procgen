@@ -1,7 +1,7 @@
 ;;;; noise.lisp
 ;;;; Noise constructors: each MAKE-*-NOISE function returns a closure of (x y z)
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 ;;; Gradient table shared by Perlin and Simplex noise
 

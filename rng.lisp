@@ -1,7 +1,7 @@
 ;;;; rng.lisp
 ;;;; Seeded pseudo-random number generator (port of paul's lagged-Fibonacci generator)
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 (defconstant +rng-ssize+ 64
   "Size of the generator's state array (must be a power of two).")

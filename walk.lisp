@@ -1,7 +1,7 @@
 ;;;; walk.lisp
 ;;;; Drunkard's-walk (random-walk) cave generation
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 (defparameter %walk-directions #((0 . -1) (0 . 1) (-1 . 0) (1 . 0))
   "Cardinal step vectors as (DX . DY) pairs: west, east, north, south.")

@@ -1,7 +1,7 @@
 ;;;; package.lisp
-;;;; Package definition for common-generation
+;;;; Package definition for cl-procgen
 
-(defpackage #:common-generation
+(defpackage #:cl-procgen
   (:nicknames #:cgen)
   (:use #:cl)
   (:export

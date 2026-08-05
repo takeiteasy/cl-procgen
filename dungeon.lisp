@@ -1,7 +1,7 @@
 ;;;; dungeon.lisp
 ;;;; BSP room-and-corridor dungeon generation
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 (defstruct (dungeon-room (:constructor %make-room (x y w h)))
   "A rectangular room placed by BSP-DUNGEON, in grid cell coordinates. X and Y

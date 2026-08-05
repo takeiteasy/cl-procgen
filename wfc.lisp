@@ -1,7 +1,7 @@
 ;;;; wfc.lisp
 ;;;; Wave Function Collapse (overlapping model) grid generation
 
-(in-package #:common-generation)
+(in-package #:cl-procgen)
 
 ;;; The solver core (wave / entropy / observe / propagate / contradiction)
 ;;; operates purely on patterns + weights + adjacency; this file's job is to
