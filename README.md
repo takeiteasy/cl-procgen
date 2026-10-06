@@ -7,6 +7,21 @@ sampling. Starts 2D, extends to 3D, and feeds
 [`common-shapes`](../common-shapes) to turn generated caves and heightfields
 into meshes.
 
+## Installation
+
+From the takeiteasy Quicklisp dist:
+
+```lisp
+(ql-dist:install-dist "https://takeiteasy.github.io/ql-dist/dist/takeiteasy.txt")
+(ql:quickload :cl-procgen)
+```
+
+Or clone into Quicklisp's local-projects:
+
+```sh
+git clone https://github.com/takeiteasy/cl-procgen ~/quicklisp/local-projects/cl-procgen
+```
+
 ## Features
 
 - **RNG** (`rng.lisp`) — a seeded, deterministic lagged-Fibonacci generator:
