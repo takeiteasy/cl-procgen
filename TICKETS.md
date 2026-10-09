@@ -19,7 +19,7 @@ here until one exists.
 
 - **#10 — Greedy meshing.** Merge coplanar adjacent quads on grid-derived
   meshes (cave/dungeon/maze walls from `cave-grid->walls`, heightfields)
-  before handing them to `common-shapes`, to cut vertex/triangle counts on
+  before handing them to `cl-meshgen`, to cut vertex/triangle counts on
   large flat regions.
 
 - **#11 — Arbitrary-polygon triangulation (GPL boundary).** Room-floor

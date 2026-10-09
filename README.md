@@ -4,7 +4,7 @@ A Common Lisp library of procedural generation algorithms: seeded noise
 (Perlin, Simplex, Worley, value, white), fractal combinators (fBm,
 turbulence, ridged multifractal), cellular automata, and Poisson disc
 sampling. Starts 2D, extends to 3D, and feeds
-[`common-shapes`](../common-shapes) to turn generated caves and heightfields
+[`cl-meshgen`](../cl-meshgen) to turn generated caves and heightfields
 into meshes.
 
 ## Installation
@@ -55,11 +55,11 @@ git clone https://github.com/takeiteasy/cl-procgen ~/quicklisp/local-projects/cl
   sample (including bit grids from `cellular-automata`, `drunkards-walk`, etc.).
 - **Mesh generation** (`mesh.lisp`, system `cl-procgen/mesh`) — a
   separate system, since it is the only part of this library that depends on
-  `common-shapes`:
+  `cl-meshgen`:
   - `heightfield->mesh` converts a 2D single-float field (from
     `noise-field-2d` or `diamond-square`) into a
-    [`common-shapes`](../common-shapes) `mesh`, matching
-    `common-shapes:make-plane`'s XY-plane/CCW-winding conventions with
+    [`cl-meshgen`](../cl-meshgen) `mesh`, matching
+    `cl-meshgen:make-plane`'s XY-plane/CCW-winding conventions with
     height written into Z.
   - `cave-grid->walls` extrudes the solid cells of a bit grid
     (`cellular-automata`, `drunkards-walk`, `bsp-dungeon`, `maze`) into a
@@ -69,7 +69,7 @@ git clone https://github.com/takeiteasy/cl-procgen ~/quicklisp/local-projects/cl
 
 No runtime dependencies for the core `cl-procgen` system (only
 [`fiveam`](https://github.com/lispci/fiveam) for tests). The optional
-`cl-procgen/mesh` system depends on `common-shapes`.
+`cl-procgen/mesh` system depends on `cl-meshgen`.
 
 ## Dependencies
 
@@ -130,37 +130,37 @@ None at runtime. `fiveam` is required to run the test suite.
 ```
 
 Mesh generation is a separate system (it is the only part of this library
-that depends on `common-shapes`):
+that depends on `cl-meshgen`):
 
 ```lisp
 (ql:quickload :cl-procgen/mesh)
 
-;; A noise-driven terrain mesh, ready for common-shapes
+;; A noise-driven terrain mesh, ready for cl-meshgen
 (let* ((noise (make-perlin-noise :seed 3))
        (field (noise-field-2d noise 65 65 :scale 32.0 :octaves 5))
        (mesh (cl-procgen/mesh:heightfield->mesh
               field :width 10.0 :depth 10.0 :height-scale 2.0
                     :normals t :tex-coords t)))
-  (common-shapes:vertex-count mesh))
+  (cl-meshgen:vertex-count mesh))
 
 ;; A cellular-automata cave, extruded into walls with a floor and ceiling
 (let* ((rng (make-rng :seed 9))
        (grid (cellular-automata rng 40 40))
        (mesh (cl-procgen/mesh:cave-grid->walls
               grid :height 2.0 :ceiling t :normals t)))
-  (common-shapes:triangle-count mesh))
+  (cl-meshgen:triangle-count mesh))
 
 ;; Iso-contours from a heightfield via marching squares -- both the
 ;; extruded wall mesh and the raw 2D outline segments
 (let* ((field (diamond-square (make-rng :seed 5) 6)))
   (multiple-value-bind (mesh segments)
       (cl-procgen/mesh:marching-squares->mesh field :iso 0.5)
-    (values (common-shapes:triangle-count mesh) (length segments))))
+    (values (cl-meshgen:triangle-count mesh) (length segments))))
 ```
 
 ## Future Work
 
-Open work items — remaining `common-shapes` integration (marching cubes,
+Open work items — remaining `cl-meshgen` integration (marching cubes,
 Poisson scatter, greedy meshing, arbitrary-polygon triangulation), 3D
 algorithms, L-systems, voxel ray traversal, additional noise, and an
 optimisation pass — are tracked in [`TICKETS.md`](TICKETS.md).

@@ -5,7 +5,7 @@
   :description "A Common Lisp library of procedural generation algorithms (noise, fBm, cellular automata, Poisson disc sampling)"
   :author "George Watson <gigolo@hotmail.co.uk>"
   :license "MIT"
-  :version "0.1.0"
+  :version "0.1.1"
   :serial t
   :components ((:file "package")
                (:file "math")
@@ -30,15 +30,15 @@
   :components ((:file "tests")))
 
 (asdf:defsystem #:cl-procgen/mesh
-  :description "Converts cl-procgen grid data into common-shapes meshes"
+  :description "Converts cl-procgen grid data into cl-meshgen meshes"
   :author "George Watson <gigolo@hotmail.co.uk>"
   ;; MIT for now: the MVP (heightfield->mesh) needs no triangulation library.
   ;; If this system later grows arbitrary-polygon triangulation via the GPLv3
   ;; cl-earcut / cl-constrained-delaunay libraries, it will relicense to
   ;; GPLv3 at that point. cl-procgen itself stays MIT regardless.
   :license "MIT"
-  :version "0.1.0"
-  :depends-on (#:cl-procgen #:common-shapes)
+  :version "0.1.1"
+  :depends-on (#:cl-procgen #:cl-meshgen)
   :serial t
   :components ((:file "mesh")))
 

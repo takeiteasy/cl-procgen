@@ -1,5 +1,5 @@
 ;;;; mesh.lisp
-;;;; Convert cl-procgen grid data into common-shapes meshes
+;;;; Convert cl-procgen grid data into cl-meshgen meshes
 
 (defpackage #:cl-procgen/mesh
   (:nicknames #:cgen-mesh)
@@ -14,10 +14,10 @@
                                      (base-height 0.0) normals tex-coords)
   "Convert a 2D single-float FIELD (indexed (AREF field row col), as returned
    by COMMON-GENERATION:NOISE-FIELD-2D or COMMON-GENERATION:DIAMOND-SQUARE)
-   into a COMMON-SHAPES:MESH.
+   into a CL-MESHGEN:MESH.
 
    The vertex grid lies on the XY plane centered at the origin, matching
-   COMMON-SHAPES:MAKE-PLANE: WIDTH/DEPTH set the XY extent, and each sample
+   CL-MESHGEN:MAKE-PLANE: WIDTH/DEPTH set the XY extent, and each sample
    FIELD(row, col) becomes that vertex's Z coordinate, scaled by
    HEIGHT-SCALE and offset by BASE-HEIGHT. Triangle winding is
    counter-clockwise, matching MAKE-PLANE, so the surface faces +Z when
@@ -25,7 +25,7 @@
 
    FIELD must be at least 2x2 (one grid cell); a smaller field signals an
    ERROR. NORMALS and TEX-COORDS, if true, request per-vertex normals
-   (computed via COMMON-SHAPES:COMPUTE-NORMALS) and a UV grid (u, v in
+   (computed via CL-MESHGEN:COMPUTE-NORMALS) and a UV grid (u, v in
    [0, 1], matching MAKE-PLANE)."
   (destructuring-bind (rows cols) (array-dimensions field)
     (when (or (< rows 2) (< cols 2))
@@ -78,19 +78,19 @@
                          (incf tri-idx))))
                 (set-tri bl br tr)
                 (set-tri bl tr tl))))))
-      (let ((mesh (common-shapes:make-mesh :vertices vertices
+      (let ((mesh (cl-meshgen:make-mesh :vertices vertices
                                             :indices indices
                                             :normals nil
                                             :tex-coords uvs
                                             :dimensions 3)))
         (if normals
-            (common-shapes:compute-normals mesh)
+            (cl-meshgen:compute-normals mesh)
             mesh)))))
 
 (defun %write-quad (vertices indices uvs quad-idx v0 v1 v2 v3)
   "Write one quad (as two CCW triangles) into VERTICES/INDICES (and UVS, if
    non-NIL) at QUAD-IDX. V0..V3 are (x y z) lists, given in CCW order as
-   viewed from the face's outward normal, matching COMMON-SHAPES:MAKE-BOX's
+   viewed from the face's outward normal, matching CL-MESHGEN:MAKE-BOX's
    per-face vertex convention."
   (let ((vbase (* quad-idx 4 3))
         (ibase (* quad-idx 2 3))
@@ -132,7 +132,7 @@
    COMMON-GENERATION:CELLULAR-AUTOMATA, COMMON-GENERATION:DRUNKARDS-WALK,
    COMMON-GENERATION:BSP-DUNGEON, or the wall-grid form of
    COMMON-GENERATION:MAZE, where a non-zero cell means solid/wall and a zero
-   cell means open/floor -- into a COMMON-SHAPES:MESH of vertical wall quads.
+   cell means open/floor -- into a CL-MESHGEN:MESH of vertical wall quads.
 
    Cells are laid out on the XY plane centered at the origin (matching
    HEIGHTFIELD->MESH), each CELL-SIZE units square. A wall quad is emitted
@@ -143,8 +143,8 @@
    quad at Z=HEIGHT (facing -Z).
 
    Faces do not share vertices (one quad's worth of vertices per face, as in
-   COMMON-SHAPES:MAKE-BOX), so NORMALS (if true, via
-   COMMON-SHAPES:COMPUTE-NORMALS) and TEX-COORDS (a 0..1 UV square per face)
+   CL-MESHGEN:MAKE-BOX), so NORMALS (if true, via
+   CL-MESHGEN:COMPUTE-NORMALS) and TEX-COORDS (a 0..1 UV square per face)
    produce hard-edged per-face results. A GRID with no exposed faces (e.g.
    all-open with FLOOR and CEILING both NIL) produces a valid empty mesh."
   (destructuring-bind (rows cols) (array-dimensions grid)
@@ -204,13 +204,13 @@
                                       (list x0 y0 h) (list x0 y1 h)
                                       (list x1 y1 h) (list x1 y0 h))
                         (incf quad-idx)))))))
-          (let ((mesh (common-shapes:make-mesh :vertices vertices
+          (let ((mesh (cl-meshgen:make-mesh :vertices vertices
                                                 :indices indices
                                                 :normals nil
                                                 :tex-coords uvs
                                                 :dimensions 3)))
             (if normals
-                (common-shapes:compute-normals mesh)
+                (cl-meshgen:compute-normals mesh)
                 mesh)))))))
 
 (defparameter %ms-case-edges
@@ -238,7 +238,7 @@
    marching squares, at threshold ISO.
 
    Returns two values:
-   1. A COMMON-SHAPES:MESH extruding every contour segment into a vertical
+   1. A CL-MESHGEN:MESH extruding every contour segment into a vertical
       wall quad spanning Z from 0 to HEIGHT (pass :HEIGHT 0.0 for a
       degenerate, zero-area mesh if only the outline in the second value is
       wanted).
@@ -246,10 +246,10 @@
       of 2-element single-float points #(X Y) in world space (grid points on
       the XY plane centered at the origin, CELL-SIZE apart, matching
       HEIGHTFIELD->MESH's centering convention) -- a zero-dependency polyline
-      output usable without COMMON-SHAPES.
+      output usable without CL-MESHGEN.
 
    Edge crossings are linearly interpolated between corner values. NORMALS,
-   if true, computes per-vertex normals via COMMON-SHAPES:COMPUTE-NORMALS."
+   if true, computes per-vertex normals via CL-MESHGEN:COMPUTE-NORMALS."
   (destructuring-bind (rows cols) (array-dimensions field)
     (let* ((cs (cl-procgen:sf cell-size))
            (h (cl-procgen:sf height))
@@ -286,7 +286,7 @@
                    (%write-quad vertices indices nil quad-idx
                                 (list x0 y0 0.0) (list x1 y1 0.0)
                                 (list x1 y1 h) (list x0 y0 h))))
-        (let ((mesh (common-shapes:make-mesh :vertices vertices
+        (let ((mesh (cl-meshgen:make-mesh :vertices vertices
                                               :indices indices
                                               :normals nil
                                               :tex-coords nil
@@ -298,5 +298,5 @@
                                                  (vector (cl-procgen:sf x1)
                                                           (cl-procgen:sf y1)))))
                                      segments)))
-          (values (if normals (common-shapes:compute-normals mesh) mesh)
+          (values (if normals (cl-meshgen:compute-normals mesh) mesh)
                   out-segments))))))
